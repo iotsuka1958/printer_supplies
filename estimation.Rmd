@@ -1,0 +1,200 @@
+---
+title: "toner_usage_estimation"
+output: html_document
+date: "2023-03-06"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+## 過去5年の実績(excel2tibble)
+
+過去5年間のプリンタートナー使用量の実績を、excelファイルをベースとして読み込む。
+縦長にしておく。
+
+```{r}
+df_base <- readxl::read_excel("toner.xlsx", sheet = 1) %>% 
+  pivot_longer(7:11, names_to = "year", values_to = "how_many") %>% 
+  mutate(year = str_sub(year, 6, 9)) %>% 
+  mutate(printer = fct_inorder(printer),
+         model = fct_inorder(model))
+```
+
+```{r}
+df_base
+```
+
+
+```{r}
+df_base %>% 
+  group_by(printer, supply, color, model) %>% 
+  summarise(mean = mean(how_many),
+            max = max(how_many))
+```
+
+
+
+
+## 新旧プリンター・新旧トナーの紐づけ
+
+
+
+```{r pressure, echo=FALSE}
+df_printer_linkage <- readxl::read_xlsx("linking_table.xlsx", sheet = "printer_linkage") %>% 
+  mutate(old_printer = fct_inorder(old_printer),
+         new_printer = fct_inorder(new_printer))
+```
+
+```{r}
+df_printer_linkage
+```
+```{r pressure, echo=FALSE}
+df_model_linkage <- readxl::read_xlsx("linking_table.xlsx", sheet = "model_linkage") %>% 
+  mutate(old_model = fct_inorder(old_model),
+         new_model = fct_inorder(new_model))
+```
+
+```{r}
+df_model_linkage
+```
+
+
+```{r}
+df_base %>% 
+  group_by(printer, supply, color, model) %>% 
+  summarise(mean = mean(how_many),
+            max = max(how_many),
+            .groups = "drop") %>% 
+  left_join(df_printer_linkage, 
+            by = join_by("printer" == "old_printer")) %>% 
+  left_join(df_model_linkage,
+            by = join_by("model" == "old_model"))
+```
+
+## 内田洋行の提案
+
+
+```{r pressure, echo=FALSE}
+df_uchida_proposal <- readxl::read_xlsx("uchida_proposal.xlsx", sheet = 1) %>% 
+  mutate(new_model = fct_inorder(new_model))
+```
+
+```{r}
+df_uchida_proposal
+```
+
+
+## 表
+
+###　わりと詳しい版
+
+```{r}
+df_base %>% 
+  group_by(printer, model, supply, color) %>% 
+  summarise(mean = mean(how_many),
+            max = max(how_many),
+            .groups = "drop") %>% 
+  left_join(df_printer_linkage, 
+            by = join_by("printer" == "old_printer")) %>% 
+  left_join(df_model_linkage,
+            by = join_by("model" == "old_model")) %>% 
+  left_join(df_uchida_proposal,
+            by = "new_model") %>% 
+  mutate(across(.cols = matches("model|printer"), .fns = str_to_upper)) %>% 
+  relocate(supply:color, .after = printer) %>% 
+  knitr::kable(format = "latex", booktabs = TRUE)
+```
+
+###　金額を入れた版
+
+```{r}
+df_cost_linkage <- readxl::read_xlsx("linking_table.xlsx", sheet = "cost_linkage") %>% 
+  mutate(new_model = fct_inorder(new_model))
+```
+
+```{r}
+df_cost_linkage
+```
+
+
+
+```{r}
+df_base %>% 
+  group_by(printer, model, supply, color) %>% 
+  summarise(mean = mean(how_many),
+            max = max(how_many),
+            .groups = "drop") %>% 
+  left_join(df_printer_linkage, 
+            by = join_by("printer" == "old_printer")) %>% 
+  left_join(df_model_linkage,
+            by = join_by("model" == "old_model")) %>% 
+  left_join(df_uchida_proposal,
+            by = "new_model") %>% 
+  left_join(df_cost_linkage, by = "new_model") %>% 
+  mutate(total = proposal_1 + proposal_2) %>% 
+  mutate(cost = total * discounted_price) %>% 
+  mutate(across(.cols = matches("model|printer"), .fns = str_to_upper)) %>% 
+  relocate(supply:color, .after = printer) %>% 
+  relocate(total, .after = proposal_2) %>% 
+  select(-c(1, 4)) %>% 
+  relocate(new_printer:new_model, .before = supply) %>%   knitr::kable(format = "latex", booktabs = TRUE, format.args = list(big.mark = ","))
+```
+
+###　過去実績を除いた版
+
+```{r}
+df_base %>% 
+  group_by(printer, model, supply, color) %>% 
+  summarise(mean = mean(how_many),
+            max = max(how_many),
+            .groups = "drop") %>% 
+  left_join(df_printer_linkage, 
+            by = join_by("printer" == "old_printer")) %>% 
+  left_join(df_model_linkage,
+            by = join_by("model" == "old_model")) %>% 
+  left_join(df_uchida_proposal,
+            by = "new_model") %>% 
+  left_join(df_cost_linkage, by = "new_model") %>% 
+  mutate(total = proposal_1 + proposal_2) %>% 
+  mutate(cost = total * discounted_price) %>% 
+  mutate(across(.cols = matches("model|printer"), .fns = str_to_upper)) %>% 
+  relocate(supply:color, .after = printer) %>% 
+  relocate(total, .after = proposal_2) %>% 
+  select(-c(1, 4)) %>% 
+  relocate(new_printer:new_model, .before = supply) %>%
+  select(-(5:6)) %>%
+  knitr::kable(format = "latex", booktabs = TRUE, format.args = list(big.mark = ","))
+```
+
+
+### excelファイルに書き出し
+
+```{r}
+df_base %>% 
+  group_by(printer, model, supply, color) %>% 
+  summarise(mean = mean(how_many),
+            max = max(how_many),
+            .groups = "drop") %>% 
+  left_join(df_printer_linkage, 
+            by = join_by("printer" == "old_printer")) %>% 
+  left_join(df_model_linkage,
+            by = join_by("model" == "old_model")) %>% 
+  left_join(df_uchida_proposal,
+            by = "new_model") %>% 
+  left_join(df_cost_linkage, by = "new_model") %>% 
+  mutate(total = proposal_1 + proposal_2) %>% 
+  mutate(cost = total * discounted_price) %>% 
+  mutate(across(.cols = matches("model|printer"), .fns = str_to_upper)) %>% 
+  relocate(supply:color, .after = printer) %>% 
+  relocate(total, .after = proposal_2) %>% 
+  select(-c(1, 4)) %>% 
+  relocate(new_printer:new_model, .before = supply) %>%
+  select(-(5:6)) %>% 
+  writexl::write_xlsx(path = "./tohoho.xlsx")
+```

@@ -1,0 +1,50 @@
+---
+title: "stock_control"
+output: html_document
+date: "2023-03-15"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+
+
+## R Markdown
+
+
+```{r}
+df_base <- readxl::read_excel("stock_tracker.xlsx", sheet = 1) 
+```
+
+```{r}
+df_base |>
+  mutate(date = ymd(date))|>
+  mutate(model = fct_inorder(model)) |> 
+  mutate(across(.cols = ends_with("qty"),
+                .fns = ~replace_na(., 0)
+                )
+         ) |>
+  mutate(nendo = year(date) + if_else(month(date) >= 4, 0, -1)) |>
+  group_by(model) |>
+  summarise(used_qty = sum(used_qty),
+            purchased_qty = sum(purchased_qty), .groups = "drop") |>
+  mutate(stock_qty = purchased_qty - used_qty)
+```
+
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

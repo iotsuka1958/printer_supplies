@@ -1,0 +1,66 @@
+---
+title: "stock_tracker"
+output: html_document
+date: "2023-03-15"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+
+
+## R Markdown
+
+いつ、
+
+- どの所属がどの型番の消耗品をいくつ消費したか
+- いつどの予算でどの型番の消耗品をいくつ補充したか
+
+を記録する。
+
+csvファイルで作成してもいいが、
+不特定多数が入力しやすいexcelファイルで作成しておいて、
+作業にあたってデータフレームに読み込むことにした。
+
+```{r}
+df_base <- readxl::read_excel("stock_tracker.xlsx", sheet = "data")|>
+  mutate(date = ymd(date))|>
+  mutate(model = fct_inorder(model)) |> 
+  mutate(across(.cols = ends_with("qty"),
+                .fns = ~replace_na(., 0)
+                )
+         ) |>
+  mutate(nendo = year(date) + if_else(month(date) >= 4, 0, -1)) 
+```
+
+```{r}
+df_base |> 
+  DT::datatable(options = list(pageLength=100))
+```
+
+
+```{r}
+df_base  |>
+  group_by(model) |>
+  summarise(used_qty = sum(used_qty),
+            purchased_qty = sum(purchased_qty), .groups = "drop") |>
+  mutate(stock_qty = purchased_qty - used_qty) |> 
+  DT::datatable(options = list(pageLength=100))
+```
+
+
+```{r}
+df_base  |> 
+  filter(!str_detect(dpt, "消耗品係"))|> 
+  group_by(dpt, model) |> 
+  summarise(used_qty = sum(used_qty), .groups = "drop") |> 
+  DT::datatable(options = list(pageLength=100))
+```
+
