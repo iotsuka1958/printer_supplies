@@ -16,11 +16,10 @@ library(readxl)
 
 
 
-## R Markdown
+## Basic Data
 
-いつ、
 
-- どの所属がどの型番の消耗品をいくつ消費したか
+- いつどの所属がどの型番の消耗品をいくつ消費したか
 - いつどの予算でどの型番の消耗品をいくつ補充したか
 
 を記録する。
@@ -40,11 +39,16 @@ df_base <- readxl::read_excel("stock_tracker.xlsx", sheet = "data")|>
   mutate(nendo = year(date) + if_else(month(date) >= 4, 0, -1)) 
 ```
 
+読み込んだデータフレームを表示。
+
 ```{r}
 df_base |> 
   DT::datatable(options = list(pageLength=100))
 ```
 
+## 型番ごとの在庫
+
+各型番の在庫数を確認。
 
 ```{r}
 df_base  |>
@@ -55,6 +59,7 @@ df_base  |>
   DT::datatable(options = list(pageLength=100))
 ```
 
+## 各所属各型番の消費数
 
 ```{r}
 df_base  |> 
