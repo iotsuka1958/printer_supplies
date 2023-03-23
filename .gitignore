@@ -2,13 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
-.html
-.xlsx
-linking_table.xlsx
-printer_toner.xlsx
-result.xlsx
-stock_tracker.html
-stock_tracker.xlsx
-toner.xlsx
-uchida_proposal.xlsx
-千葉県総合教育センター様　プリンター等消耗品整理資料0303.xlsx
+*.html
+*.xlsx
