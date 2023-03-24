@@ -1,7 +1,9 @@
 ---
 title: "stock_tracker"
-output: html_document
-date: "2023-03-15"
+output:
+  html_document:
+    number_sections: true
+date: "latest output `r format(Sys.time(), '%Y-%m-%d %H:%M')`"
 ---
 
 ```{r setup, include=FALSE}
@@ -15,8 +17,16 @@ library(readxl)
 ```
 
 
+事業用プリンターの消耗品を管理するためのRプロジェクト。
 
-## Basic Data
+
+
+
+
+
+
+\newpage
+# Basic Data
 
 
 - いつどの所属がどの型番の消耗品をいくつ消費したか
@@ -28,8 +38,32 @@ csvファイルで作成してもいいが、
 不特定多数が入力しやすいexcelファイルで作成しておいて、
 作業にあたってデータフレームに読み込むことにした。
 
+
+
+
+
 ```{r}
+model_levels <- c("lpc3h17", "lpc3k17", "lpc3k17k", "lpc3t37y", "lpc3t37c", "lpc3t37k", "lpc3t37m", "lpc3t38y", "lpc3t38c", "lpc3t38k", "lpc3t38m", "lpc3t38yv", "lpc3t38cv", "lpc3t38kv", "lpc3t38mv", "lpb3t30", "lpb3t32", "lpb3t32v", "ib02ka", "ib02ca", "ib02ma", "ib02ya", "ib02kb", "ib02cb", "ib02mb", "ib02yb", "ic6cl80", "ic6cl80l", "sc9bk15", "sc9c15", "sc9vm15", "sc9y15", "sc9lc15", "sc9vlm15", "sc9gy15", "sc9mb15", "sc9lgy15", "sc9bk70", "sc9c70", "sc9vm70", "sc9y70", "sc9lc70", "sc9vlm70", "sc9gy70", "sc9mb70", "sc9lgy70")
+
 df_base <- readxl::read_excel("stock_tracker.xlsx", sheet = "data")|>
+  mutate(date = ymd(date))|>
+  mutate(model = factor(model, levels = model_levels)) |> 
+  mutate(across(.cols = ends_with("qty"),
+                .fns = ~replace_na(., 0)
+                )
+         ) |>
+  mutate(nendo = year(date) + if_else(month(date) >= 4, 0, -1)) 
+```
+
+
+```{r}
+df_base |> 
+  DT::datatable(options = list(pageLength=100))
+```
+
+<!--
+```{r}
+old_df_base <- readxl::read_excel("stock_tracker.xlsx", sheet = "data_old")|>
   mutate(date = ymd(date))|>
   mutate(model = fct_inorder(model)) |> 
   mutate(across(.cols = ends_with("qty"),
@@ -42,13 +76,22 @@ df_base <- readxl::read_excel("stock_tracker.xlsx", sheet = "data")|>
 読み込んだデータフレームを表示。
 
 ```{r}
-df_base |> 
+old_df_base |> 
   DT::datatable(options = list(pageLength=100))
 ```
+
+
+-->
+
+
+\newpage
+# aggregation
 
 ## 型番ごとの在庫
 
 各型番の在庫数を確認。
+
+
 
 ```{r}
 df_base  |>
@@ -59,7 +102,21 @@ df_base  |>
   DT::datatable(options = list(pageLength=100))
 ```
 
+<!--
+```{r}
+old_df_base  |>
+  group_by(model) |>
+  summarise(used_qty = sum(used_qty),
+            purchased_qty = sum(purchased_qty), .groups = "drop") |>
+  mutate(stock_qty = purchased_qty - used_qty) |> 
+  DT::datatable(options = list(pageLength=100))
+```
+\newpage
+-->
+
+\newpage
 ## 各所属各型番の消費数
+
 
 ```{r}
 df_base  |> 
@@ -69,3 +126,13 @@ df_base  |>
   DT::datatable(options = list(pageLength=100))
 ```
 
+
+<!--
+```{r}
+old_df_base  |> 
+  filter(!str_detect(dpt, "消耗品係"))|> 
+  group_by(dpt, model) |> 
+  summarise(used_qty = sum(used_qty), .groups = "drop") |> 
+  DT::datatable(options = list(pageLength=100))
+```
+-->
