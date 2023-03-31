@@ -87,7 +87,7 @@ old_df_base |>
 \newpage
 # aggregation
 
-## 型番ごとの在庫
+## 型番ごとの消費数・在庫数
 
 各型番の在庫数を確認。
 
@@ -96,8 +96,9 @@ old_df_base |>
 ```{r}
 df_base  |>
   group_by(model) |>
-  summarise(used_qty = sum(used_qty),
-            purchased_qty = sum(purchased_qty), .groups = "drop") |>
+  summarise(purchased_qty = sum(purchased_qty),
+            used_qty = sum(used_qty),
+                        .groups = "drop") |>
   mutate(stock_qty = purchased_qty - used_qty) |> 
   DT::datatable(options = list(pageLength=100))
 ```
@@ -115,7 +116,7 @@ old_df_base  |>
 -->
 
 \newpage
-## 各所属各型番の消費数
+## 各所属の消費数
 
 
 ```{r}
@@ -123,6 +124,8 @@ df_base  |>
   filter(!str_detect(dpt, "消耗品係"))|> 
   group_by(dpt, model) |> 
   summarise(used_qty = sum(used_qty), .groups = "drop") |> 
+  filter(used_qty > 0) |> 
+  arrange(desc(dpt)) |>  
   DT::datatable(options = list(pageLength=100))
 ```
 
@@ -136,3 +139,17 @@ old_df_base  |>
   DT::datatable(options = list(pageLength=100))
 ```
 -->
+
+\newpage
+## 各型番の消費数
+
+
+```{r}
+df_base  |> 
+  filter(!str_detect(dpt, "消耗品係"))|> 
+  group_by(model, dpt) |> 
+  summarise(used_qty = sum(used_qty), .groups = "drop") |> 
+  filter(used_qty > 0) |> 
+  arrange(model) |>  
+  DT::datatable(options = list(pageLength=100))
+```
