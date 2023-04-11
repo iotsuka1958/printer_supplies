@@ -116,7 +116,7 @@ old_df_base  |>
 -->
 
 \newpage
-## 各所属の消費数
+## 各所属の型番別消費数
 
 
 ```{r}
@@ -129,7 +129,17 @@ df_base  |>
   DT::datatable(options = list(pageLength=100))
 ```
 
-
+```{r}
+df_base  |> 
+  filter(!str_detect(dpt, "消耗品係")) |> 
+  select(-5) |> 
+  group_by(dpt, model) |> 
+  mutate(total_used_qty = cumsum(used_qty)) |>
+  ungroup() |>
+  select(1:4, 6, 5) |>  
+  ggplot(aes(date, total_used_qty, colour = model)) +
+  geom_line() + geom_point() + facet_grid(model ~ dpt)
+```
 <!--
 ```{r}
 old_df_base  |> 
@@ -141,7 +151,36 @@ old_df_base  |>
 -->
 
 \newpage
-## 各型番の消費数
+## 各所属のトータル消費数
+
+
+```{r}
+df_base  |> 
+  filter(!str_detect(dpt, "消耗品係"))|> 
+  group_by(dpt) |> 
+  summarise(used_qty = sum(used_qty), .groups = "drop") |> 
+  filter(used_qty > 0) |> 
+  arrange(desc(dpt)) |>  
+  DT::datatable(options = list(pageLength=100))
+```
+
+
+視覚に訴えるとこんな感じ。
+
+```{r}
+df_base  |> 
+  filter(!str_detect(dpt, "消耗品係")) |> 
+  select(-5) |> 
+  group_by(dpt) |> 
+  mutate(total_used_qty = cumsum(used_qty)) |>
+  ungroup() |>
+  select(1:4, 6, 5) |>  
+  ggplot(aes(date, total_used_qty, colour = dpt)) +
+  geom_line() + geom_point() 
+```
+
+\newpage
+## 各型番の所属ごと消費数
 
 
 ```{r}
@@ -153,3 +192,10 @@ df_base  |>
   arrange(model) |>  
   DT::datatable(options = list(pageLength=100))
 ```
+
+
+
+```
+
+
+
