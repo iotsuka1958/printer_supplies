@@ -3,3 +3,17 @@
 ベースとなるデータはcsvではなく、excelでつくって、作業の時にデータフレームにすることにした。
 ssh接続がうまくいかない
 ようわからない
+
+RstudioのProject optionsのGit/SVNのタブで
+originの欄が
+https://github.com/iotsuka1958/printer_supplies.git
+となっていたので、それを
+git@github.com:iotsuka1958/printer_supplies.git
+とすればいいと見込んだがorigin欄がグレーアウトしていて直接入力ができない。
+そこでchatGPTに質問したらうまくいった。
+./git/configのurl = 以下を
+git@github.com:iotsuka1958/printer_supplies.git
+に修正したらうまくいった。
+RstudioのProject optionsのGit/SVNのタブで
+originの欄が書き換わっていた。
+めでたし。
