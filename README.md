@@ -17,3 +17,8 @@ git@github.com:iotsuka1958/printer_supplies.git
 RstudioのProject optionsのGit/SVNのタブで
 originの欄が書き換わっていた。
 めでたし。
+
+とおもったが、そもそも職場のパソコンはsshがうまくいかない。
+これはgithubの問題ではなさそう。
+./.git/configのurlをhttpsに戻した。
+これはうまくいくので、とりあえずはこのままいく。

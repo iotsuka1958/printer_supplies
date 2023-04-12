@@ -140,6 +140,34 @@ df_base  |>
   ggplot(aes(date, total_used_qty, colour = model)) +
   geom_line() + geom_point() + facet_grid(model ~ dpt)
 ```
+
+色をトナーのインクの色と揃えてみる。まあこのほうが直感的にわかりやすい。
+色がどぎついから明度・彩度を抑えめにするのは宿題。色名じゃなくて、RGB値もしくはHEXコードを指定すればいい。
+
+```{r}
+df_base  |> 
+  filter(!str_detect(dpt, "消耗品係")) |> 
+  select(-5) |> 
+  group_by(dpt, model) |> 
+  mutate(total_used_qty = cumsum(used_qty)) |>
+  ungroup() |>
+  select(1:4, 6, 5) |>  
+  ggplot(aes(date, total_used_qty, colour = model)) +
+  geom_line() + geom_point() + facet_grid(model ~ dpt) +
+  scale_colour_manual(
+		values = c("lpb3t30" = "black",
+		           "lpc3t37k" = "black",
+		           "lpc3t37y" = "yellow",
+		           "lpc3t37c" = "cyan",
+		           "lpc3t37m" = "magenta")
+  )
+```
+
+
+
+
+
+
 <!--
 ```{r}
 old_df_base  |> 
@@ -166,6 +194,7 @@ df_base  |>
 
 
 視覚に訴えるとこんな感じ。
+カリキュラム開発部研究開発班の消費が突出している。
 
 ```{r}
 df_base  |> 
