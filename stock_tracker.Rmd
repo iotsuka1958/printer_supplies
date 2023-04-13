@@ -45,9 +45,12 @@ csvファイルで作成してもいいが、
 ```{r}
 model_levels <- c("lpc3h17", "lpc3k17", "lpc3k17k", "lpc3t37y", "lpc3t37c", "lpc3t37k", "lpc3t37m", "lpc3t38y", "lpc3t38c", "lpc3t38k", "lpc3t38m", "lpc3t38yv", "lpc3t38cv", "lpc3t38kv", "lpc3t38mv", "lpb3t30", "lpb3t32", "lpb3t32v", "ib02ka", "ib02ca", "ib02ma", "ib02ya", "ib02kb", "ib02cb", "ib02mb", "ib02yb", "ic6cl80", "ic6cl80l", "sc9bk15", "sc9c15", "sc9vm15", "sc9y15", "sc9lc15", "sc9vlm15", "sc9gy15", "sc9mb15", "sc9lgy15", "sc9bk70", "sc9c70", "sc9vm70", "sc9y70", "sc9lc70", "sc9vlm70", "sc9gy70", "sc9mb70", "sc9lgy70")
 
+dpt_levels <- c("消耗品係(在庫品)","消耗品係(内田洋行期首納品)", "消耗品係(情報活用支援班)","消耗品係(生涯学習課予算)","消耗品係(科学技術教育)","総務課総務企画班","研修企画部","情報活用支援班","カリキュラム開発部研究開発班","カリキュラム開発部科学技術教育班","学力調査部")
+
 df_base <- readxl::read_excel("stock_tracker.xlsx", sheet = "data")|>
   mutate(date = ymd(date))|>
   mutate(model = factor(model, levels = model_levels)) |> 
+  mutate(dpt = factor(dpt, levels = dpt_levels)) |> 
   mutate(across(.cols = ends_with("qty"),
                 .fns = ~replace_na(., 0)
                 )
@@ -116,6 +119,43 @@ old_df_base  |>
 -->
 
 \newpage
+## 各所属のトータル消費数
+
+
+```{r}
+df_base  |> 
+  filter(!str_detect(dpt, "消耗品係"))|> 
+  group_by(dpt) |> 
+  summarise(used_qty = sum(used_qty), .groups = "drop") |> 
+  filter(used_qty > 0) |> 
+  arrange(desc(dpt)) |>  
+  DT::datatable(options = list(pageLength=100))
+```
+
+視覚に訴えるとこんな感じ。
+カリキュラム開発部研究開発班の消費が突出している。
+
+```{r}
+df_base  |> 
+  filter(!str_detect(dpt, "消耗品係")) |> 
+  select(-5) |> 
+  group_by(dpt) |> 
+  mutate(total_used_qty = cumsum(used_qty)) |>
+  ungroup() |>
+  select(1:4, 6, 5) |>  
+  ggplot(aes(date, total_used_qty, 
+             colour = fct_reorder2(dpt, date, total_used_qty))) +
+  geom_line() + geom_point() +
+  labs(colour = NULL, x = "日付", y = "消費数")
+```
+
+
+
+
+
+
+
+\newpage
 ## 各所属の型番別消費数
 
 
@@ -138,11 +178,17 @@ df_base  |>
   ungroup() |>
   select(1:4, 6, 5) |>  
   ggplot(aes(date, total_used_qty, colour = model)) +
-  geom_line() + geom_point() + facet_grid(model ~ dpt)
+  geom_line() + geom_point() +
+  facet_grid(model ~ dpt) +
+  labs(colour = "トナー型番", x = "日付", y = "消費数")
 ```
 
-色をトナーのインクの色と揃えてみる。まあこのほうが直感的にわかりやすい。
-色がどぎついから明度・彩度を抑えめにするのは宿題。色名じゃなくて、RGB値もしくはHEXコードを指定すればいい。
+### 改良版
+
+グラフの線の色をトナーのインクの色と揃えてみる。
+このほうが直感的にわかりやすい。
+色がどぎついから明度・彩度を抑えめにするのは宿題。
+色名ではなくて、RGB値もしくはHEXコードを指定すればいい。
 
 ```{r}
 df_base  |> 
@@ -160,12 +206,9 @@ df_base  |>
 		           "lpc3t37y" = "yellow",
 		           "lpc3t37c" = "cyan",
 		           "lpc3t37m" = "magenta")
-  )
+  ) +
+  labs(colour = "トナー型番", x = "日付", y = "消費数")
 ```
-
-
-
-
 
 
 <!--
@@ -177,36 +220,6 @@ old_df_base  |>
   DT::datatable(options = list(pageLength=100))
 ```
 -->
-
-\newpage
-## 各所属のトータル消費数
-
-
-```{r}
-df_base  |> 
-  filter(!str_detect(dpt, "消耗品係"))|> 
-  group_by(dpt) |> 
-  summarise(used_qty = sum(used_qty), .groups = "drop") |> 
-  filter(used_qty > 0) |> 
-  arrange(desc(dpt)) |>  
-  DT::datatable(options = list(pageLength=100))
-```
-
-
-視覚に訴えるとこんな感じ。
-カリキュラム開発部研究開発班の消費が突出している。
-
-```{r}
-df_base  |> 
-  filter(!str_detect(dpt, "消耗品係")) |> 
-  select(-5) |> 
-  group_by(dpt) |> 
-  mutate(total_used_qty = cumsum(used_qty)) |>
-  ungroup() |>
-  select(1:4, 6, 5) |>  
-  ggplot(aes(date, total_used_qty, colour = dpt)) +
-  geom_line() + geom_point() 
-```
 
 \newpage
 ## 各型番の所属ごと消費数
@@ -221,10 +234,4 @@ df_base  |>
   arrange(model) |>  
   DT::datatable(options = list(pageLength=100))
 ```
-
-
-
-```
-
-
 
