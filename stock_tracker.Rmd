@@ -45,7 +45,7 @@ csvファイルで作成してもいいが、
 ```{r}
 model_levels <- c("lpc3h17", "lpc3k17", "lpc3k17k", "lpc3t37y", "lpc3t37c", "lpc3t37k", "lpc3t37m", "lpc3t38y", "lpc3t38c", "lpc3t38k", "lpc3t38m", "lpc3t38yv", "lpc3t38cv", "lpc3t38kv", "lpc3t38mv", "lpb3t30", "lpb3t32", "lpb3t32v", "ib02ka", "ib02ca", "ib02ma", "ib02ya", "ib02kb", "ib02cb", "ib02mb", "ib02yb", "ic6cl80", "ic6cl80l", "sc9bk15", "sc9c15", "sc9vm15", "sc9y15", "sc9lc15", "sc9vlm15", "sc9gy15", "sc9mb15", "sc9lgy15", "sc9bk70", "sc9c70", "sc9vm70", "sc9y70", "sc9lc70", "sc9vlm70", "sc9gy70", "sc9mb70", "sc9lgy70")
 
-dpt_levels <- c("消耗品係(在庫品)","消耗品係(内田洋行期首納品)", "消耗品係(情報活用支援班)","消耗品係(生涯学習課予算)","消耗品係(科学技術教育)","総務課総務企画班","研修企画部","情報活用支援班","カリキュラム開発部研究開発班","カリキュラム開発部科学技術教育班","学力調査部")
+dpt_levels <- c("消耗品係(在庫品)","消耗品係(内田洋行期首納品)", "消耗品係(情報活用支援班)","消耗品係(生涯学習課予算)","消耗品係(科学技術教育)","総務課総務企画班","研修企画部","情報活用支援班","カリキュラム開発部研究開発班","カリキュラム開発部科学技術教育班","学力調査部", "特別支援教育部")
 
 df_base <- readxl::read_excel("stock_tracker.xlsx", sheet = "data")|>
   mutate(date = ymd(date))|>
