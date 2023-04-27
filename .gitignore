@@ -4,3 +4,6 @@
 .Ruserdata
 *.html
 *.xlsx
+*.pdf
+*md*
+.gitignore.*
