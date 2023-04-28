@@ -8,8 +8,10 @@ date: "latest output `r format(Sys.time(), '%Y-%m-%d %H:%M')`"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(tidy=TRUE, tidy.opts=list(arrow=TRUE, indent=4))
+knitr::opts_chunk$set(message=FALSE)
+knitr::opts_chunk$set(warning=FALSE)
 ```
-
 
 ```{r}
 library(tidyverse)
@@ -20,12 +22,6 @@ library(readxl)
 事業用プリンターの消耗品を管理するためのRプロジェクト。
 
 
-
-
-
-
-
-\newpage
 # Basic Data
 
 
@@ -43,9 +39,25 @@ csvファイルで作成してもいいが、
 
 
 ```{r}
-model_levels <- c("lpc3h17", "lpc3k17", "lpc3k17k", "lpc3t37y", "lpc3t37c", "lpc3t37k", "lpc3t37m", "lpc3t38y", "lpc3t38c", "lpc3t38k", "lpc3t38m", "lpc3t38yv", "lpc3t38cv", "lpc3t38kv", "lpc3t38mv", "lpb3t30", "lpb3t32", "lpb3t32v", "ib02ka", "ib02ca", "ib02ma", "ib02ya", "ib02kb", "ib02cb", "ib02mb", "ib02yb", "ic6cl80", "ic6cl80l", "sc9bk15", "sc9c15", "sc9vm15", "sc9y15", "sc9lc15", "sc9vlm15", "sc9gy15", "sc9mb15", "sc9lgy15", "sc9bk70", "sc9c70", "sc9vm70", "sc9y70", "sc9lc70", "sc9vlm70", "sc9gy70", "sc9mb70", "sc9lgy70")
+model_levels <- c("lpc3h17", "lpc3k17", "lpc3k17k", "lpc3t37y",
+                  "lpc3t37c", "lpc3t37k", "lpc3t37m", "lpc3t38y",
+                  "lpc3t38c", "lpc3t38k", "lpc3t38m", "lpc3t38yv",
+                  "lpc3t38cv", "lpc3t38kv", "lpc3t38mv", "lpb3t30",
+                  "lpb3t32", "lpb3t32v", "ib02ka", "ib02ca", "ib02ma",
+                  "ib02ya", "ib02kb", "ib02cb", "ib02mb", "ib02yb",
+                  "ic6cl80", "ic6cl80l", "sc9bk15", "sc9c15", "sc9vm15",
+                  "sc9y15", "sc9lc15", "sc9vlm15", "sc9gy15", "sc9mb15",
+                  "sc9lgy15", "sc9bk70", "sc9c70", "sc9vm70", "sc9y70",
+                  "sc9lc70", "sc9vlm70", "sc9gy70", "sc9mb70", "sc9lgy70")
 
-dpt_levels <- c("消耗品係(在庫品)","消耗品係(内田洋行期首納品)", "消耗品係(情報活用支援班)","消耗品係(生涯学習課予算)","消耗品係(科学技術教育)","総務課総務企画班","研修企画部","情報活用支援班","カリキュラム開発部研究開発班","カリキュラム開発部科学技術教育班","学力調査部", "特別支援教育部")
+dpt_levels <- c("消耗品係(在庫品)","消耗品係(内田洋行期首納品)",
+                "消耗品係(情報活用支援班)","消耗品係(生涯学習課予算)",
+                "消耗品係(科学技術教育)","総務課総務企画班",
+                "研修企画部", "情報活用支援班",
+                "カリキュラム開発部研究開発班",
+                "カリキュラム開発部科学技術教育班",
+                "学力調査部", "特別支援教育部",
+                "不明")
 
 df_base <- readxl::read_excel("stock_tracker.xlsx", sheet = "data")|>
   mutate(date = ymd(date))|>
@@ -128,12 +140,18 @@ df_base  |>
   group_by(dpt) |> 
   summarise(used_qty = sum(used_qty), .groups = "drop") |> 
   filter(used_qty > 0) |> 
-  arrange(desc(dpt)) |>  
+ #  arrange(desc(dpt)) |>  
   DT::datatable(options = list(pageLength=100))
 ```
 
+\newpage
+### Visualization
+
 視覚に訴えるとこんな感じ。
-カリキュラム開発部研究開発班の消費が突出している。
+カリキュラム開発部研究開発班と研修企画部(5階)の消費が突出している。
+
+なお、特別支援教育部については物理的に庁舎が離れていることから、
+あらかじめ予備について手交したもの。
 
 ```{r}
 df_base  |> 
@@ -157,6 +175,10 @@ df_base  |>
 
 \newpage
 ## 各所属の型番別消費数
+
+
+<!-- 
+
 
 
 ```{r}
@@ -184,11 +206,14 @@ df_base  |>
 ```
 
 ### 改良版
+ -->
 
 グラフの線の色をトナーのインクの色と揃えてみる。
+<!--
 このほうが直感的にわかりやすい。
 色がどぎついから明度・彩度を抑えめにするのは宿題。
 色名ではなくて、RGB値もしくはHEXコードを指定すればいい。
+-->
 
 ```{r}
 df_base  |> 
@@ -199,7 +224,8 @@ df_base  |>
   ungroup() |>
   select(1:4, 6, 5) |>  
   ggplot(aes(date, total_used_qty, colour = model)) +
-  geom_line() + geom_point() + facet_grid(model ~ dpt) +
+  geom_line() + geom_point() +
+  facet_grid(model ~ dpt) +
   scale_colour_manual(
 		values = c("lpb3t30" = "black",
 		           "lpc3t37k" = "black",
@@ -212,15 +238,6 @@ df_base  |>
 
 
 <!--
-```{r}
-old_df_base  |> 
-  filter(!str_detect(dpt, "消耗品係"))|> 
-  group_by(dpt, model) |> 
-  summarise(used_qty = sum(used_qty), .groups = "drop") |> 
-  DT::datatable(options = list(pageLength=100))
-```
--->
-
 \newpage
 ## 各型番の所属ごと消費数
 
@@ -235,3 +252,4 @@ df_base  |>
   DT::datatable(options = list(pageLength=100))
 ```
 
+-->
