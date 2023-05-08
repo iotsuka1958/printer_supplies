@@ -57,7 +57,7 @@ dpt_levels <- c("消耗品係(在庫品)","消耗品係(内田洋行期首納品
                 "カリキュラム開発部研究開発班",
                 "カリキュラム開発部科学技術教育班",
                 "学力調査部", "特別支援教育部",
-                "不明")
+                "教職員課")
 
 df_base <- readxl::read_excel("stock_tracker.xlsx", sheet = "data")|>
   mutate(date = ymd(date))|>
