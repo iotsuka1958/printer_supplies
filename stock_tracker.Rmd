@@ -227,7 +227,9 @@ df_base  |>
   geom_line() + geom_point() +
   facet_grid(model ~ dpt) +
   scale_colour_manual(
-		values = c("lpb3t30" = "black",
+		values = c("lpc3h17" = "black",
+		           "lpc3k17" = "black",
+		           "lpb3t30" = "black",
 		           "lpc3t37k" = "black",
 		           "lpc3t37y" = "yellow",
 		           "lpc3t37c" = "cyan",
