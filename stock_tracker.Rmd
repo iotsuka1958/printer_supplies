@@ -260,7 +260,7 @@ df_base  |>
 ## 窓口用プリントアウト
 
 ```{r}
-df_base |> 
+gt_table <- df_base |> 
   select(1:5) |> 
   rename("日付" = date,
          "所属" = dpt,
@@ -268,7 +268,14 @@ df_base |>
          "使用数" = used_qty,
          "補充数" = purchased_qty
         ) |>
-  mutate(across(contains("数"), ~ ifelse(. == 0, "", .))) 
+  mutate(across(contains("数"), ~ ifelse(. == 0, "", .))) |>
+  gt() |>
+  tab_header(title = "プリンター消耗品整理簿", subtitle = "2023年機種変更後") |>
+  tab_footnote(footnote = "型番は正確に記入すること") |>
+  cols_align(align = "left", columns = c(2, 3)) 
+gt_table
+gtsave(gt_table, "printer_toner_consumption.html")  # LaTeX
+
 ```
 
 
