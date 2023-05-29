@@ -217,6 +217,9 @@ df_base  |>
 色名ではなくて、RGB値もしくはHEXコードを指定すればいい。
 -->
 
+以下のコードでscale_colour_manual()の引数valuesはすべての色をあらかじめ指定しておくべきだが、
+いまのところ実際に消費したトナー等しか指定していない。
+もれがあるとグラフの凡例に出てこないので注意。
 ```{r}
 df_base  |> 
   filter(!str_detect(dpt, "消耗品係")) |> 
@@ -230,7 +233,7 @@ df_base  |>
   facet_grid(model ~ dpt) +
   scale_colour_manual(
 		values = c("lpc3h17" = "black",
-		           "lpc3k17" = "black",
+  	           "lpc3k17" = "black",
 		           "lpb3t30" = "black",
 		           "lpc3t37k" = "black",
 		           "lpc3t37y" = "yellow",
@@ -275,9 +278,10 @@ gt_table <- df_base |>
   tab_footnote(footnote = "型番は正確に記入すること") |>
   cols_align(align = "left", columns = c(2, 3)) 
 gt_table
-gtsave(gt_table, "printer_toner_consumption.html")  # LaTeX
-
 ```
 
+```{r}
+gtsave(gt_table, "printer_toner_consumption.html")  # htmlファイル作成
+```
 
 
