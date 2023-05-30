@@ -192,37 +192,6 @@ df_base  |>
 ## 各所属の型番別消費数
 
 
-<!-- 
-
-
-
-```{r}
-df_base  |> 
-  filter(!str_detect(dpt, "消耗品係"))|> 
-  group_by(dpt, model) |> 
-  summarise(used_qty = sum(used_qty), .groups = "drop") |> 
-  filter(used_qty > 0) |> 
-  arrange(desc(dpt)) |>  
-  DT::datatable(options = list(pageLength=100))
-```
-
-```{r}
-df_base  |> 
-  filter(!str_detect(dpt, "消耗品係")) |> 
-  select(-5) |> 
-  group_by(dpt, model) |> 
-  mutate(total_used_qty = cumsum(used_qty)) |>
-  ungroup() |>
-  select(1:4, 6, 5) |>  
-  ggplot(aes(date, total_used_qty, colour = model)) +
-  geom_line() + geom_point() +
-  facet_grid(model ~ dpt) +
-  labs(colour = "トナー型番", x = "日付", y = "消費数")
-```
-
-### 改良版
- -->
-
 グラフの線の色をトナーのインクの色と揃えてみる。
 <!--
 このほうが直感的にわかりやすい。
