@@ -111,14 +111,27 @@ old_df_base |>
 
 
 ```{r}
-df_base  |>
+gt_zaiko <- df_base  |>
   group_by(model) |>
   summarise(purchased_qty = sum(purchased_qty),
             used_qty = sum(used_qty),
                         .groups = "drop") |>
   mutate(stock_qty = purchased_qty - used_qty) |> 
-  DT::datatable(options = list(pageLength=100))
+  magrittr::set_colnames(c("型番", "補充数", "消費数", "在庫数")) |> 
+#  DT::datatable(options = list(pageLength=100))
+  gt() |>
+  tab_header(title = "プリンター消耗品在庫一覧",
+             subtitle = c("as of", as.character(Sys.time())))|>
+  tab_footnote(footnote = "裏面に続く(かも)") |>
+  cols_align(align = "left", columns = 1) 
+gt_zaiko
 ```
+
+
+```{r}
+gtsave(gt_zaiko, "stock_quantityn.html")  # htmlファイル作成
+```
+
 
 <!--
 ```{r}
@@ -269,12 +282,13 @@ gt_table <- df_base |>
   rename("日付" = date,
          "所属" = dpt,
          "型番" = model,
-         "使用数" = used_qty,
+         "消費数" = used_qty,
          "補充数" = purchased_qty
         ) |>
   mutate(across(contains("数"), ~ ifelse(. == 0, "", .))) |>
   gt() |>
-  tab_header(title = "プリンター消耗品整理簿", subtitle = "2023年機種変更後") |>
+  tab_header(title = "プリンター消耗品整理簿",
+             subtitle =  c("as of", as.character(Sys.time()))) |>
   tab_footnote(footnote = "型番は正確に記入すること") |>
   cols_align(align = "left", columns = c(2, 3)) 
 gt_table
@@ -284,4 +298,32 @@ gt_table
 gtsave(gt_table, "printer_toner_consumption.html")  # htmlファイル作成
 ```
 
+```{r}
+table_dpt <- df_base |> 
+  select(1:4) |> 
+  filter(!str_detect(dpt, "消耗品")) |> 
+  mutate(across(contains("数"), ~ ifelse(. == 0, "", .))) |>
+  group_by(dpt) |> 
+  rename("日付" = date,
+         "所属" = dpt,
+         "型番" = model,
+         "消費数" = used_qty,
+        ) |>
+  gt() |>
+  tab_header(title = "所属別プリンター消耗品消費数",
+             subtitle =  c("as of", as.character(Sys.time()))) |>
+  #Modify the order of the row groups with row_group_order(), specifying the new ordering in groups.
+  row_group_order(groups = c("総務課総務企画班", "研修企画部",
+                             "情報活用支援班",
+                             "カリキュラム開発部研究開発班",
+                             "特別支援教育部", "学力調査部",
+                             "学習指導課", "教職員課")) |> 
+  tab_footnote(footnote = "") |>
+  cols_align(align = "left", columns = c(2, 3))
+table_dpt
+```
+
+```{r}
+gtsave(table_dpt, "dpt_consumption.html")  # htmlファイル作成
+```
 
