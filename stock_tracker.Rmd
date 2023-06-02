@@ -78,27 +78,7 @@ df_base |>
   DT::datatable(options = list(pageLength=100))
 ```
 
-<!--
-```{r}
-old_df_base <- readxl::read_excel("stock_tracker.xlsx", sheet = "data_old")|>
-  mutate(date = ymd(date))|>
-  mutate(model = fct_inorder(model)) |> 
-  mutate(across(.cols = ends_with("qty"),
-                .fns = ~replace_na(., 0)
-                )
-         ) |>
-  mutate(nendo = year(date) + if_else(month(date) >= 4, 0, -1)) 
-```
 
-読み込んだデータフレームを表示。
-
-```{r}
-old_df_base |> 
-  DT::datatable(options = list(pageLength=100))
-```
-
-
--->
 
 
 \newpage
