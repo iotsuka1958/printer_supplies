@@ -36,9 +36,6 @@ csvファイルで作成してもいいが、
 作業にあたってデータフレームに読み込むことにした。
 
 
-
-
-
 ```{r}
 model_levels <- c("lpc3h17", "lpc3k17", "lpc3k17k", "lpc3t37y",
                   "lpc3t37c", "lpc3t37k", "lpc3t37m", "lpc3t38y",
@@ -77,8 +74,6 @@ df_base <- readxl::read_excel("stock_tracker.xlsx", sheet = "data")|>
 df_base |> 
   DT::datatable(options = list(pageLength=100))
 ```
-
-
 
 
 \newpage
@@ -151,12 +146,6 @@ df_base  |>
   labs(colour = NULL, x = "日付", y = "消費数")
 ```
 
-
-
-
-
-
-
 \newpage
 ## 各所属の型番別消費数
 
@@ -185,16 +174,19 @@ df_base  |>
   scale_colour_manual(
 		values = c("lpc3h17" = "black",
   	           "lpc3k17" = "black",
+		           "lpc3k17k" = "black",
 		           "lpb3t30" = "black",
 		           "lpc3t37k" = "black",
+		           "lpc3t38kv" = "black",
 		           "lpc3t37y" = "yellow",
+		           "lpc3t38yv" = "yellow",
 		           "lpc3t37c" = "cyan",
-		           "lpc3t37m" = "magenta")
+		           "lpc3t38cv" = "cyan",
+		           "lpc3t37m" = "magenta",
+		           "lpc3t38mv" = "magenta")
   ) +
   labs(colour = "トナー型番", x = "日付", y = "消費数")
 ```
-
-
 
 
 ## 窓口用プリントアウト
