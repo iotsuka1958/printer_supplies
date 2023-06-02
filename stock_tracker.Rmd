@@ -21,7 +21,7 @@ library(gt)
 
 
 事業用プリンターの消耗品を管理するためのRプロジェクト。
-
+developというbranchで作業中(2023-06-02)
 
 # Basic Data
 
