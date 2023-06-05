@@ -37,11 +37,13 @@ csvファイルで作成してもいいが、
 
 
 ```{r}
-model_levels <- c("lpc3h17", "lpc3k17", "lpc3k17k", "lpc3t37y",
-                  "lpc3t37c", "lpc3t37k", "lpc3t37m", "lpc3t38y",
-                  "lpc3t38c", "lpc3t38k", "lpc3t38m", "lpc3t38yv",
-                  "lpc3t38cv", "lpc3t38kv", "lpc3t38mv", "lpb3t30",
-                  "lpb3t32", "lpb3t32v", "ib02ka", "ib02ca", "ib02ma",
+model_levels <- c("lpc3h17", "lpc3k17", "lpc3k17k",
+                  "lpc3t37y", "lpc3t38y","lpc3t38yv",
+                  "lpc3t37c", "lpc3t38c", "lpc3t38cv",
+                  "lpc3t37k", "lpc3t38k", "lpc3t38kv",
+                  "lpc3t37m", "lpc3t38m", "lpc3t38mv",
+                  "lpb3t30",  "lpb3t32", "lpb3t32v",
+                  "ib02ka", "ib02ca", "ib02ma",
                   "ib02ya", "ib02kb", "ib02cb", "ib02mb", "ib02yb",
                   "ic6cl80", "ic6cl80l", "sc9bk15", "sc9c15", "sc9vm15",
                   "sc9y15", "sc9lc15", "sc9vlm15", "sc9gy15", "sc9mb15",
@@ -51,7 +53,7 @@ model_levels <- c("lpc3h17", "lpc3k17", "lpc3k17k", "lpc3t37y",
 dpt_levels <- c("消耗品係(在庫品)","消耗品係(内田洋行期首納品)",
                 "消耗品係(情報活用支援班)","消耗品係(生涯学習課予算)",
                 "消耗品係(科学技術教育)","消耗品係(学習指導課)",
-                "総務課総務企画班",
+                "総務課調整班", "総務課総務企画班",
                 "研修企画部", "情報活用支援班",
                 "カリキュラム開発部研究開発班",
                 "カリキュラム開発部科学技術教育班",
@@ -104,7 +106,7 @@ gt_zaiko
 
 
 ```{r}
-gtsave(gt_zaiko, "stock_quantityn.html")  # htmlファイル作成
+gtsave(gt_zaiko, "stock_quantity.html")  # htmlファイル作成
 ```
 
 
@@ -176,6 +178,7 @@ df_base  |>
   	           "lpc3k17" = "black",
 		           "lpc3k17k" = "black",
 		           "lpb3t30" = "black",
+		           "lpb3t32v" = "black",
 		           "lpc3t37k" = "black",
 		           "lpc3t38kv" = "black",
 		           "lpc3t37y" = "yellow",
@@ -228,7 +231,8 @@ table_dpt <- df_base |>
   tab_header(title = "所属別プリンター消耗品消費数",
              subtitle =  c("as of", as.character(Sys.time()))) |>
   #Modify the order of the row groups with row_group_order(), specifying the new ordering in groups.
-  row_group_order(groups = c("総務課総務企画班", "研修企画部",
+  row_group_order(groups = c("総務課調整班",
+                             "総務課総務企画班", "研修企画部",
                              "情報活用支援班",
                              "カリキュラム開発部研究開発班",
                              "特別支援教育部", "学力調査部",
