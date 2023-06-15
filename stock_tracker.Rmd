@@ -216,6 +216,24 @@ gt_table
 gtsave(gt_table, "printer_toner_consumption.html")  # htmlファイル作成
 ```
 
+
+```{r}
+ df_base |> 
+  select(1:5) |> 
+  rename("日付" = date,
+         "所属" = dpt,
+         "型番" = model,
+         "消費数" = used_qty,
+         "補充数" = purchased_qty
+        ) |>
+  mutate(across(contains("数"), ~ ifelse(. == 0, "", .))) |> knitr::kable(format = "latex", booktabs = TRUE)
+```
+
+
+
+
+
+
 ```{r}
 table_dpt <- df_base |> 
   select(1:4) |> 
