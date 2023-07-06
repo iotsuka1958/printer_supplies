@@ -277,3 +277,4 @@ table_dpt
 gtsave(table_dpt, "dpt_consumption.html")  # htmlファイル作成
 ```
 
+oyoyo
