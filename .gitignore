@@ -5,6 +5,7 @@
 *.html
 *.xlsx
 *.pdf
-*md*
+*.md*
+*.Rmd.*
 .gitignore.*
 python_version/

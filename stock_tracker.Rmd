@@ -21,7 +21,8 @@ library(gt)
 
 
 事業用プリンターの消耗品を管理するためのRプロジェクト。
-
+developというbranchで作業中(2023-06-02)
+なんかよくわからない。
 
 # Basic Data
 
@@ -264,3 +265,4 @@ table_dpt
 gtsave(table_dpt, "dpt_consumption.html")  # htmlファイル作成
 ```
 
+oyoyo
