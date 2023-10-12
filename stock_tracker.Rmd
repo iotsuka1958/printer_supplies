@@ -8,9 +8,9 @@ date: "latest output `r format(Sys.time(), '%Y-%m-%d %H:%M')`"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(tidy=TRUE, tidy.opts=list(arrow=TRUE, indent=4))
-knitr::opts_chunk$set(message=FALSE)
-knitr::opts_chunk$set(warning=FALSE)
+knitr::opts_chunk$set(tidy = TRUE, tidy.opts = list(arrow = TRUE, indent = 4))
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
 ```
 
 ```{r}
@@ -38,44 +38,48 @@ csvファイルで作成してもいいが、
 
 
 ```{r}
-model_levels <- c("lpc3h17", "lpc3k17", "lpc3k17k",
-                  "lpc3t37y", "lpc3t38y","lpc3t38yv",
-                  "lpc3t37c", "lpc3t38c", "lpc3t38cv",
-                  "lpc3t37k", "lpc3t38k", "lpc3t38kv",
-                  "lpc3t37m", "lpc3t38m", "lpc3t38mv",
-                  "lpb3t30",  "lpb3t32", "lpb3t32v",
-                  "ib02ka", "ib02ca", "ib02ma",
-                  "ib02ya", "ib02kb", "ib02cb", "ib02mb", "ib02yb",
-                  "ic6cl80", "ic6cl80l", "sc9bk15", "sc9c15", "sc9vm15",
-                  "sc9y15", "sc9lc15", "sc9vlm15", "sc9gy15", "sc9mb15",
-                  "sc9lgy15", "sc9bk70", "sc9c70", "sc9vm70", "sc9y70",
-                  "sc9lc70", "sc9vlm70", "sc9gy70", "sc9mb70", "sc9lgy70")
+model_levels <- c(
+  "lpc3h17", "lpc3k17", "lpc3k17k",
+  "lpc3t37y", "lpc3t38y", "lpc3t38yv",
+  "lpc3t37c", "lpc3t38c", "lpc3t38cv",
+  "lpc3t37k", "lpc3t38k", "lpc3t38kv",
+  "lpc3t37m", "lpc3t38m", "lpc3t38mv",
+  "lpb3t30", "lpb3t32", "lpb3t32v",
+  "ib02ka", "ib02ca", "ib02ma",
+  "ib02ya", "ib02kb", "ib02cb", "ib02mb", "ib02yb",
+  "ic6cl80", "ic6cl80l", "sc9bk15", "sc9c15", "sc9vm15",
+  "sc9y15", "sc9lc15", "sc9vlm15", "sc9gy15", "sc9mb15",
+  "sc9lgy15", "sc9bk70", "sc9c70", "sc9vm70", "sc9y70",
+  "sc9lc70", "sc9vlm70", "sc9gy70", "sc9mb70", "sc9lgy70"
+)
 
-dpt_levels <- c("消耗品係(在庫品)","消耗品係(内田洋行期首納品)",
-                "消耗品係(情報活用支援班)","消耗品係(生涯学習課予算)",
-                "消耗品係(科学技術教育)","消耗品係(学習指導課)",
-                "総務課調整班", "総務課総務企画班",
-                "研修企画部", "情報活用支援班",
-                "カリキュラム開発部研究開発班",
-                "カリキュラム開発部科学技術教育班",
-                "学力調査部", "特別支援教育部", "学習指導課",
-                "教職員課")
+dpt_levels <- c(
+  "消耗品係(在庫品)", "消耗品係(内田洋行期首納品)",
+  "消耗品係(情報活用支援班)", "消耗品係(生涯学習課予算)",
+  "消耗品係(科学技術教育)", "消耗品係(学習指導課)",
+  "総務課調整班", "総務課総務企画班",
+  "研修企画部", "情報活用支援班",
+  "カリキュラム開発部研究開発班",
+  "カリキュラム開発部科学技術教育班",
+  "学力調査部", "特別支援教育部", "学習指導課",
+  "教職員課"
+)
 
-df_base <- readxl::read_excel("stock_tracker.xlsx", sheet = "data")|>
-  mutate(date = ymd(date))|>
-  mutate(model = factor(model, levels = model_levels)) |> 
-  mutate(dpt = factor(dpt, levels = dpt_levels)) |> 
-  mutate(across(.cols = ends_with("qty"),
-                .fns = ~replace_na(., 0)
-                )
-         ) |>
-  mutate(nendo = year(date) + if_else(month(date) >= 4, 0, -1)) 
+df_base <- readxl::read_excel("stock_tracker.xlsx", sheet = "data") |>
+  mutate(date = ymd(date)) |>
+  mutate(model = factor(model, levels = model_levels)) |>
+  mutate(dpt = factor(dpt, levels = dpt_levels)) |>
+  mutate(across(
+    .cols = ends_with("qty"),
+    .fns = ~ replace_na(., 0)
+  )) |>
+  mutate(nendo = year(date) + if_else(month(date) >= 4, 0, -1))
 ```
 
 
 ```{r}
-df_base |> 
-  DT::datatable(options = list(pageLength=100))
+df_base |>
+  DT::datatable(options = list(pageLength = 100))
 ```
 
 
@@ -89,25 +93,28 @@ df_base |>
 
 
 ```{r}
-gt_zaiko <- df_base  |>
+gt_zaiko <- df_base |>
   group_by(model) |>
-  summarise(purchased_qty = sum(purchased_qty),
-            used_qty = sum(used_qty),
-                        .groups = "drop") |>
-  mutate(stock_qty = purchased_qty - used_qty) |> 
-  magrittr::set_colnames(c("型番", "補充数", "消費数", "在庫数")) |> 
-#  DT::datatable(options = list(pageLength=100))
+  summarise(
+    purchased_qty = sum(purchased_qty),
+    used_qty = sum(used_qty),
+    .groups = "drop"
+  ) |>
+  mutate(stock_qty = purchased_qty - used_qty) |>
+  magrittr::set_colnames(c("型番", "補充数", "消費数", "在庫数")) |>
   gt() |>
-  tab_header(title = "プリンター消耗品在庫一覧",
-             subtitle = c("as of", as.character(Sys.time())))|>
+  tab_header(
+    title = "プリンター消耗品在庫一覧",
+    subtitle = c("as of", as.character(Sys.time()))
+  ) |>
   tab_footnote(footnote = "裏面に続く(かも)") |>
-  cols_align(align = "left", columns = 1) 
+  cols_align(align = "left", columns = 1)
 gt_zaiko
 ```
 
 
 ```{r}
-gtsave(gt_zaiko, "stock_quantity.html")  # htmlファイル作成
+gtsave(gt_zaiko, "stock_quantity.html") # htmlファイル作成
 ```
 
 
@@ -117,13 +124,12 @@ gtsave(gt_zaiko, "stock_quantity.html")  # htmlファイル作成
 
 
 ```{r}
-df_base  |> 
-  filter(!str_detect(dpt, "消耗品係"))|> 
-  group_by(dpt) |> 
-  summarise(used_qty = sum(used_qty), .groups = "drop") |> 
-  filter(used_qty > 0) |> 
- #  arrange(desc(dpt)) |>  
-  DT::datatable(options = list(pageLength=100))
+df_base |>
+  filter(!str_detect(dpt, "消耗品係")) |>
+  group_by(dpt) |>
+  summarise(used_qty = sum(used_qty), .groups = "drop") |>
+  filter(used_qty > 0) |>
+  DT::datatable(options = list(pageLength = 100))
 ```
 
 \newpage
@@ -136,16 +142,18 @@ df_base  |>
 あらかじめ予備について手交したもの。
 
 ```{r}
-df_base  |> 
-  filter(!str_detect(dpt, "消耗品係")) |> 
-  select(-5) |> 
-  group_by(dpt) |> 
+df_base |>
+  filter(!str_detect(dpt, "消耗品係")) |>
+  select(-5) |>
+  group_by(dpt) |>
   mutate(total_used_qty = cumsum(used_qty)) |>
   ungroup() |>
-  select(1:4, 6, 5) |>  
-  ggplot(aes(date, total_used_qty, 
-             colour = fct_reorder2(dpt, date, total_used_qty))) +
-  geom_line() + geom_point() +
+  select(1:4, 6, 5) |>
+  ggplot(aes(date, total_used_qty,
+    colour = fct_reorder2(dpt, date, total_used_qty)
+  )) +
+  geom_line() +
+  geom_point() +
   labs(colour = NULL, x = "日付", y = "消費数")
 ```
 
@@ -164,30 +172,33 @@ df_base  |>
 いまのところ実際に消費したトナー等しか指定していない。
 もれがあるとグラフの凡例に出てこないので注意。
 ```{r}
-df_base  |> 
-  filter(!str_detect(dpt, "消耗品係")) |> 
-  select(-5) |> 
-  group_by(dpt, model) |> 
+df_base |>
+  filter(!str_detect(dpt, "消耗品係")) |>
+  select(-5) |>
+  group_by(dpt, model) |>
   mutate(total_used_qty = cumsum(used_qty)) |>
   ungroup() |>
-  select(1:4, 6, 5) |>  
+  select(1:4, 6, 5) |>
   ggplot(aes(date, total_used_qty, colour = model)) +
-  geom_line() + geom_point() +
+  geom_line() +
+  geom_point() +
   facet_grid(model ~ dpt) +
   scale_colour_manual(
-		values = c("lpc3h17" = "black",
-  	           "lpc3k17" = "black",
-		           "lpc3k17k" = "black",
-		           "lpb3t30" = "black",
-		           "lpb3t32v" = "black",
-		           "lpc3t37k" = "black",
-		           "lpc3t38kv" = "black",
-		           "lpc3t37y" = "yellow",
-		           "lpc3t38yv" = "yellow",
-		           "lpc3t37c" = "cyan",
-		           "lpc3t38cv" = "cyan",
-		           "lpc3t37m" = "magenta",
-		           "lpc3t38mv" = "magenta")
+    values = c(
+      "lpc3h17" = "black",
+      "lpc3k17" = "black",
+      "lpc3k17k" = "black",
+      "lpb3t30" = "black",
+      "lpb3t32v" = "black",
+      "lpc3t37k" = "black",
+      "lpc3t38kv" = "black",
+      "lpc3t37y" = "yellow",
+      "lpc3t38yv" = "yellow",
+      "lpc3t37c" = "cyan",
+      "lpc3t38cv" = "cyan",
+      "lpc3t37m" = "magenta",
+      "lpc3t38mv" = "magenta"
+    )
   ) +
   labs(colour = "トナー型番", x = "日付", y = "消費数")
 ```
@@ -196,73 +207,78 @@ df_base  |>
 ## 窓口用プリントアウト
 
 ```{r}
-gt_table <- df_base |> 
-  select(1:5) |> 
-  rename("日付" = date,
-         "所属" = dpt,
-         "型番" = model,
-         "消費数" = used_qty,
-         "補充数" = purchased_qty
-        ) |>
+gt_table <- df_base |>
+  select(1:5) |>
+  rename(
+    "日付" = date,
+    "所属" = dpt,
+    "型番" = model,
+    "消費数" = used_qty,
+    "補充数" = purchased_qty
+  ) |>
   mutate(across(contains("数"), ~ ifelse(. == 0, "", .))) |>
   gt() |>
-  tab_header(title = "プリンター消耗品整理簿",
-             subtitle =  c("as of", as.character(Sys.time()))) |>
+  tab_header(
+    title = "プリンター消耗品整理簿",
+    subtitle = c("as of", as.character(Sys.time()))
+  ) |>
   tab_footnote(footnote = "型番は正確に記入すること") |>
-  cols_align(align = "left", columns = c(2, 3)) 
+  cols_align(align = "left", columns = c(2, 3))
 gt_table
 ```
 
 ```{r}
-gtsave(gt_table, "printer_toner_consumption.html")  # htmlファイル作成
+gtsave(gt_table, "printer_toner_consumption.html") # htmlファイル作成
 ```
 
 
 ```{r}
- df_base |> 
-  select(1:5) |> 
-  rename("日付" = date,
-         "所属" = dpt,
-         "型番" = model,
-         "消費数" = used_qty,
-         "補充数" = purchased_qty
-        ) |>
-  mutate(across(contains("数"), ~ ifelse(. == 0, "", .))) |> knitr::kable(format = "latex", booktabs = TRUE)
-```
-
-
-
-
-
-
-```{r}
-table_dpt <- df_base |> 
-  select(1:4) |> 
-  filter(!str_detect(dpt, "消耗品")) |> 
+df_base |>
+  select(1:5) |>
+  rename(
+    "日付" = date,
+    "所属" = dpt,
+    "型番" = model,
+    "消費数" = used_qty,
+    "補充数" = purchased_qty
+  ) |>
   mutate(across(contains("数"), ~ ifelse(. == 0, "", .))) |>
-  group_by(dpt) |> 
-  rename("日付" = date,
-         "所属" = dpt,
-         "型番" = model,
-         "消費数" = used_qty,
-        ) |>
+  knitr::kable(format = "latex", booktabs = TRUE)
+```
+
+
+```{r}
+table_dpt <- df_base |>
+  select(1:4) |>
+  filter(!str_detect(dpt, "消耗品")) |>
+  mutate(across(contains("数"), ~ ifelse(. == 0, "", .))) |>
+  group_by(dpt) |>
+  rename(
+    "日付" = date,
+    "所属" = dpt,
+    "型番" = model,
+    "消費数" = used_qty,
+  ) |>
   gt() |>
-  tab_header(title = "所属別プリンター消耗品消費数",
-             subtitle =  c("as of", as.character(Sys.time()))) |>
-  #Modify the order of the row groups with row_group_order(), specifying the new ordering in groups.
-  row_group_order(groups = c("総務課調整班",
-                             "総務課総務企画班", "研修企画部",
-                             "情報活用支援班",
-                             "カリキュラム開発部研究開発班",
-                             "特別支援教育部", "学力調査部",
-                             "学習指導課", "教職員課")) |> 
+  tab_header(
+    title = "所属別プリンター消耗品消費数",
+    subtitle = c("as of", as.character(Sys.time()))
+  ) |>
+  row_group_order(groups = c(
+    "総務課調整班",
+    "総務課総務企画班", "研修企画部",
+    "情報活用支援班",
+    "カリキュラム開発部研究開発班",
+    "特別支援教育部", "学力調査部",
+    "学習指導課", "教職員課"
+  )) |>
   tab_footnote(footnote = "") |>
   cols_align(align = "left", columns = c(2, 3))
 table_dpt
 ```
 
 ```{r}
-gtsave(table_dpt, "dpt_consumption.html")  # htmlファイル作成
+gtsave(table_dpt, "dpt_consumption.html") # htmlファイル作成
 ```
 
 oyoyo
